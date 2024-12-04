@@ -102,3 +102,64 @@ for report in eachrow(data)
 end
 
 print("The number of safe reports are $(n_safe)")
+
+"""
+--- Part Two ---
+
+The engineers are surprised by the low number of safe reports until they 
+realize they forgot to tell you about the Problem Dampener.
+
+The Problem Dampener is a reactor-mounted module that lets the reactor safety 
+systems tolerate a single bad level in what would otherwise be a safe report. 
+It's like the bad level never happened!
+
+Now, the same rules apply as before, except if removing a single level from an 
+unsafe report would make it safe, the report instead counts as safe.
+
+More of the above example's reports are now safe:
+
+    7 6 4 2 1: Safe without removing any level.
+    1 2 7 8 9: Unsafe regardless of which level is removed.
+    9 7 6 2 1: Unsafe regardless of which level is removed.
+    1 3 2 4 5: Safe by removing the second level, 3.
+    8 6 4 4 1: Safe by removing the third level, 4.
+    1 3 6 7 9: Safe without removing any level.
+
+Thanks to the Problem Dampener, 4 reports are actually safe!
+
+Update your analysis by handling situations where the Problem Dampener can 
+remove a single level from unsafe reports. How many reports are now safe?
+"""
+
+function dampener(report)
+    return [vcat(report[1:i-1], report[i+1:end]) for i in range(1, length(report))]
+end
+
+n_safe_dampened :: Int = 0
+
+for report in eachrow(data)
+    is_safe = false
+    clean_report = filter(x -> x != "", report)
+    clean_report = convert(Array{Int}, clean_report)
+    if rule1(clean_report)
+        if rule2(clean_report)
+            is_safe = true
+        end
+    end
+     
+    if !is_safe
+        for clean_report_dampened in dampener(clean_report)
+            if rule1(clean_report_dampened)
+                if rule2(clean_report_dampened)
+                    is_safe = true
+                end
+            end 
+        end
+    end
+
+    if is_safe
+        n_safe_dampened += 1
+    end
+end
+
+print(n_safe_dampened)

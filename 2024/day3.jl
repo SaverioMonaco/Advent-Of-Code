@@ -57,3 +57,78 @@ for row in data
 end
 
 println("Result is $(result)")
+
+"""
+--- Part Two ---
+
+As you scan through the corrupted memory, you notice that some of the 
+conditional statements are also still intact. If you handle some of the 
+uncorrupted conditional statements in the program, you might be able to get an 
+even more accurate result.
+
+There are two new instructions you'll need to handle:
+
+    The do() instruction enables future mul instructions.
+    The don't() instruction disables future mul instructions.
+
+Only the most recent do() or don't() instruction applies. At the beginning of 
+the program, mul instructions are enabled.
+
+For example:
+
+xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))
+
+This corrupted memory is similar to the example from before, but this time the 
+mul(5,5) and mul(11,8) instructions are disabled because there is a don't() 
+instruction before them. The other mul instructions function normally, 
+including the one at the end that gets re-enabled by a do() instruction.
+
+This time, the sum of the results is 48 (2*4 + 8*5).
+
+Handle the new instructions; what do you get if you add up all of the results 
+of just the enabled multiplications?
+"""
+
+# Load the txt file 
+data = readlines("./data/day3.txt")
+
+result :: Int = 0
+
+# Define the regular expression
+# Regex stuff impossible to read, just add chatgpt
+pattern1 = r"mul\(\d+,\s*\d+\)"
+
+# Regular expression to match "don't()**somegarbage**do()"
+pattern_filter_1 = r"don't\(\)(.*?)do\(\)"
+# Regular expression to match "don't()" followed by anything except "do()"
+pattern_filter_2 = r"don't\(\)(?!.*do\(\)).*"
+
+# ["123", "2"] -> 246
+function ParseAndMult(p_str)
+    return parse(Int, p_str[1])*parse(Int, p_str[2])
+end
+
+# Find all matches
+for row in data
+    println(row)
+    p_match_disabled = eachmatch(pattern_filter_1, row)
+    for match_disabled in p_match_disabled
+        println(">>> $(match_disabled.match)")
+        row = replace(row, match_disabled.match => "")
+    end
+    p_match_disabled = eachmatch(pattern_filter_2, row)
+    for match_disabled in p_match_disabled
+        row = replace(row, match_disabled.match => "")
+    end
+
+    println("------------")
+    println(row)
+    p_match = eachmatch(pattern, row)
+    # Extract the matched strings
+    p_intraw = replace.([m.match for m in p_match], r"[mul()]" => "")
+    pp_val  = ParseAndMult.(split.(p_intraw, ','))
+    result += sum(pp_val)
+    println("\n\n\n")
+end
+
+println("Result is $(result)")
