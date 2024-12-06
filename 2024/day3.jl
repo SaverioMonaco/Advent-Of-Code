@@ -109,26 +109,22 @@ function ParseAndMult(p_str)
 end
 
 # Find all matches
-for row in data
-    println(row)
-    p_match_disabled = eachmatch(pattern_filter_1, row)
-    for match_disabled in p_match_disabled
-        println(">>> $(match_disabled.match)")
-        row = replace(row, match_disabled.match => "")
-    end
-    p_match_disabled = eachmatch(pattern_filter_2, row)
-    for match_disabled in p_match_disabled
-        row = replace(row, match_disabled.match => "")
-    end
+data_flatten = join(data, "")
 
-    println("------------")
-    println(row)
-    p_match = eachmatch(pattern, row)
-    # Extract the matched strings
-    p_intraw = replace.([m.match for m in p_match], r"[mul()]" => "")
-    pp_val  = ParseAndMult.(split.(p_intraw, ','))
-    result += sum(pp_val)
-    println("\n\n\n")
+p_match_disabled = eachmatch(pattern_filter_1, data_flatten)
+for match_disabled in p_match_disabled
+    println(">>> $(match_disabled.match)")
+    data_flatten = replace(data_flatten, match_disabled.match => "")
 end
+p_match_disabled = eachmatch(pattern_filter_2, data_flatten)
+for match_disabled in p_match_disabled
+    data_flatten = replace(data_flatten, match_disabled.match => "")
+end
+
+p_match = eachmatch(pattern, data_flatten)
+# Extract the matched strings
+p_intraw = replace.([m.match for m in p_match], r"[mul()]" => "")
+pp_val  = ParseAndMult.(split.(p_intraw, ','))
+result += sum(pp_val)
 
 println("Result is $(result)")
