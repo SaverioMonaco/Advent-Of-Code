@@ -351,7 +351,8 @@ Adding these together produces its new total price of 1206.
 
 What is the new total price of fencing all regions on your map?
 """
-function get_p_corn(map, cord)
+# I don't want to talk about it.
+function get_p_corn(map, region, cord)
     p_corn = []
     
     plant_o = map[cord[1], cord[2]]
@@ -391,23 +392,23 @@ function get_p_corn(map, cord)
     end
     
     # Diagonal 
-    if cord[1] > 1 && cord[2] > 1
-        plant_UL = map[cord[1]-1, cord[2]-1]
+    if [cord[1]-1, cord[2]-1] in region.p_cord
+        plant_UL = region.plant
     else
         plant_UL = "#"
     end
-    if cord[1] < size(map, 1) && cord[2] > 1
-        plant_UR = map[cord[1]+1, cord[2]-1]
+    if [cord[1]+1, cord[2]-1] in region.p_cord
+        plant_UR = region.plant
     else
         plant_UR = "#"
     end
-    if cord[1] < size(map, 1) && cord[2] < size(map, 2)
-        plant_DR = map[cord[1]+1, cord[2]+1]
+    if [cord[1]+1, cord[2]+1] in region.p_cord
+        plant_DR = region.plant
     else
         plant_DR = "#"
     end
-    if cord[1] > 1 && cord[2] < size(map, 2)
-        plant_DL = map[cord[1]-1, cord[2]+1]
+    if [cord[1]-1, cord[2]+1] in region.p_cord
+        plant_DL = region.plant
     else
         plant_DL = "#"
     end
@@ -433,6 +434,27 @@ function get_p_corn(map, cord)
         end
     end
     
+    if plant_o == plant_UL
+        if plant_o != plant_u && plant_o != plant_l
+            push!(p_corn, "ex $(cord[1]) $(cord[2])")
+        end
+    end
+    if plant_o == plant_UR
+        if plant_o != plant_u && plant_o != plant_r
+            push!(p_corn, "ex $(cord[1]+1) $(cord[2])")
+        end
+    end
+    if plant_o == plant_DR
+        if plant_o != plant_d && plant_o != plant_r
+            push!(p_corn, "ex $(cord[1]+1) $(cord[2]+1)")
+        end
+    end
+    if plant_o == plant_DL
+        if plant_o != plant_d && plant_o != plant_l
+            push!(p_corn, "ex $(cord[1]) $(cord[2]+1)")
+        end
+    end
+    
     return p_corn
 end
 
@@ -445,7 +467,7 @@ function segment(map)
                 region = get_region(x, y, map)
                 p_corn = []
                 for cord in region.p_cord
-                    append!(p_corn, get_p_corn(map,cord))              
+                    append!(p_corn, get_p_corn(map, region, cord))              
                 end
                 append!(traced, region.p_cord)
                 n_sides = length(unique(p_corn))
