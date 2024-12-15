@@ -234,16 +234,20 @@ What is the fewest number of seconds that must elapse for the robots to
 display the Easter egg?
 """
 
-function is_easteregg(p_robot, p_space)
-    matrix = zeros(Int, p_space...)
-    
-    for robot in p_robot
-        matrix[robot.p_cord[1]+1, robot.p_cord[2]+1] += 1
+function closeness(p_robot)
+    function dist(robot1, robot2)
+        return sum(abs.(robot1.p_cord .- robot2.p_cord))
     end
 
-    matrix_mirror = matrix[:, end:-1:1]
-    
-    return sum(matrix .* matrix_mirror)
+    closeness_value = 0
+    for robot1 in p_robot
+        for robot2 in p_robot
+            if dist(robot1, robot2) < 2 && dist(robot1, robot2) > 0
+                closeness_value += 1
+            end
+        end
+    end
+    return closeness_value
 end
 
 function printmap_small(p_robot, p_space)
@@ -260,15 +264,16 @@ function printmap_small(p_robot, p_space)
 end
 
 data = load(file_path)
-max_overlap = 0
-max_it = 0
-for i in (1:511)
+max_clos = 0
+it = 0
+for i in (1:10000)
     step!.(data, Ref(p_space))
-    overlap = is_easteregg(data, p_space)
-    println("Step $i   $(is_easteregg(data, p_space))")
-    if i > 500
+    clos = closeness(data)
+    if clos > max_clos
+        println("Step $i: $(clos)")
         printmap_small(data, p_space)
-        sleep(0.05)
+        it = i
+        max_clos = clos
     end
 end
 
