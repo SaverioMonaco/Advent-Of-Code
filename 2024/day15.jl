@@ -624,11 +624,15 @@ function step!(map, direction)
             end
         elseif direction == "^" || direction == "v"
             function box_tree(map, position, direction)
-                function add_box(map, position, increment)
-                    if map[position[1], position[2]+increment] == "[" 
-                        return [position[1], position[2]+increment]
+                function add_box(map, position, increment, start)
+                    if map[position[1], position[2]+increment] == "]" && map[position[1]+1, position[2]+increment] == "[" && !start
+                        return [[position[1]-1, position[2]+increment], [position[1]+1, position[2]+increment]]
+                    elseif map[position[1], position[2]+increment] == "[" 
+                        return [[position[1], position[2]+increment]]
                     elseif map[position[1], position[2]+increment] == "]" 
-                        return [position[1]-1, position[2]+increment]
+                        return [[position[1]-1, position[2]+increment]]
+                    elseif map[position[1]+1, position[2]+increment] == "["
+                        return [[position[1]+1, position[2]+increment]]
                     end
                 end
 
@@ -640,18 +644,27 @@ function step!(map, direction)
                     error("Invalid direction $direction")
                 end
 
-                p_box = [add_box(map, position, increment)]
-                p_box_prev = [add_box(map, position, increment)]
+                p_box = add_box(map, position, increment, true)
+                p_box_prev = add_box(map, position, increment, true)
                                 
+                # println(p_box)
                 while length(p_box_prev) > 0
+                    # println(p_box_prev)
                     p_box_aft = []
                     for box in p_box_prev
-                        push!(p_box_aft, add_box(map, box, increment)) 
+                        # println("Bpx $box")
+                        box_aft = add_box(map, box, increment, false)
+                        # println(box_aft)
+                        if !isnothing(box_aft)
+                            append!(p_box_aft, box_aft) 
+                        end
                     end
                     p_box_aft = unique(p_box_aft)
                     p_box_aft = filter(x -> !isnothing(x), p_box_aft)
-                    println(p_box_aft)
+                    # println(p_box_aft)
                     if length(p_box_aft) > 0
+                        # println("p_box $p_box")
+                        # println("p_aft $p_box_aft")
                         append!(p_box, p_box_aft)
                         p_box_prev = p_box_aft
                     else
@@ -696,6 +709,18 @@ function step!(map, direction)
     end
 end
 
+function get_GPS(map)
+    GPS = 0
+    for x in range(1, size(map, 1))
+        for y in range(1, size(map, 2))
+            if map[x, y] == "["
+                GPS += (x-1) + 100*(y-1)
+            end
+        end
+    end
+    return GPS
+end
+
 warehouse, p_movement = load("./data/day15.txt")
 println("Before:")
 print_map(warehouse)
@@ -706,7 +731,9 @@ print_map(big_warehouse)
 for movement in p_movement
     println(movement)
     step!(big_warehouse, movement)
-    print_map(big_warehouse)
-    sleep(.1)
+    # print_map(big_warehouse)
+    # sleep(.3)
 end
 print_map(big_warehouse)
+
+get_GPS(big_warehouse)
