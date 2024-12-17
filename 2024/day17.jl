@@ -468,26 +468,23 @@ computer = Computer(get_A(p_k), args[2], args[3], args[4], 1)
 for idx_k in reverse(range(1,length(p_k)))
     println(idx_k)
     while true
-        sleep(0.3)
+        sleep(0.1)
         A = get_A(p_k)
         computer = Computer(A, args[2], args[3], args[4], 1)
         solution = execute!(computer)
         println(A, "  ", solution)
-        sleep(.3)
-        if idx_k > 1 && idx_k < 15 && computer.program[idx_k + 1] != solution[idx_k + 1]
+        if idx_k < 15 && computer.program[idx_k + 1] != solution[idx_k + 1]
             println("WAAA")
             p_k[idx_k+1] -= 1
-            p_k[idx_k] = 0
-            A = get_A(p_k)
-            computer = Computer(A, args[2], args[3], args[4], 1)
-            while computer.program[idx_k] != solution[idx_k]
+            p_k[idx_k] = -1
+            while computer.program[idx_k:end] != solution[idx_k:end]
+                p_k[idx_k] += 1
                 A = get_A(p_k)
                 computer = Computer(A, args[2], args[3], args[4], 1)
                 solution = execute!(computer)
-                p_k[idx_k] += 1
             end
-        end
-        if computer.program[idx_k] == solution[idx_k]
+
+        elseif computer.program[idx_k] == solution[idx_k]
             println("Found $idx_k = $(p_k[idx_k])")
             break
         else
@@ -495,15 +492,10 @@ for idx_k in reverse(range(1,length(p_k)))
         end
     end
 end
-p_k[1:9] .= 0
-start_A = get_A(p_k)
-computer = Computer(A, args[2], args[3], args[4], 1)
-solution = execute!(computer)
-println(solution, "  ", args[4])
 
-for A in range(start_A, 8^L)
-    computer = Computer(A, args[2], args[3], args[4], 1)
-    if execute2!(computer)
-        println("Found A: $A")
-    end
-end
+println("Solution is $(get_A(p_k))")
+
+# double check
+execute2!(Computer(get_A(p_k), args[2], args[3], args[4], 1))
+
+# I am so fucking smart
