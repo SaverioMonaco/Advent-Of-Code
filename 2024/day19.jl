@@ -198,12 +198,12 @@ function get_n_arrangments(p_towel_available, p_towel_target)
         p_towel_target_temp = [towel_target]
         p_weight = [1]
 
-        println(">> $i $n_arrangements")
+        # println(">> $i $n_arrangements")
         while length(p_towel_target_temp) > 0
             # println(length(p_towel_target_temp))
             # println(p_towel_target_temp)
             # println(p_towel_target_temp)
-            println(p_towel_target_temp, "  ", p_weight)
+            # println(p_towel_target_temp, "  ", p_weight)
             p_towel_target_temp_new = []
             p_weight_new = []
             for (target_temp, weight) in zip(p_towel_target_temp, p_weight)
